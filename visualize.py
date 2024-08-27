@@ -83,26 +83,110 @@
 # plt.show()
 # -------------------------------------------------
 
+# import matplotlib.pyplot as plt
+# import numpy as np
+# from scipy import signal
+#
+# rng = np.random.default_rng()
+#
+# fs = 10e3
+# N = 1e5
+# amp = 2 * np.sqrt(2)
+# noise_power = 0.01 * fs / 2
+# time = np.arange(N) / float(fs)
+# mod = 500 * np.cos(2 * np.pi * 0.25 * time)
+# carrier = amp * np.sin(2 * np.pi * 3e3 * time + mod)
+# noise = rng.normal(scale=np.sqrt(noise_power), size=time.shape)
+# noise *= np.exp(-time / 5)
+# x = carrier + noise
+# print("X: ", x)
+# print("Shape of X: ", x.shape)
+# f, t, Sxx = signal.spectrogram(x, fs)
+# plt.pcolormesh(t, f, Sxx, shading='gouraud')
+# plt.ylabel('Frequency [Hz]')
+# plt.xlabel('Time [sec]')
+# plt.show()
+# -------------------------------------------------
+
+# import matplotlib.pyplot as plt
+# import numpy as np
+# import pywt
+#
+# x = np.arange(512)
+# y = np.sin(2 * np.pi * x / 32)
+# coef, freqs = pywt.cwt(y, np.arange(1, 129), 'mexh')
+# plt.matshow(coef)
+# plt.show()
+# -------------------------------------------------
+# import pywt
+#
+# t = np.linspace(-1, 1, 200, endpoint=False)
+# sig = np.cos(2 * np.pi * 7 * t) + np.real(np.exp(-7 * (t - 0.4) ** 2) * np.exp(1j * 2 * np.pi * 2 * (t - 0.4)))
+# widths = np.arange(1, 31)
+# cwtmatr, freqs = pywt.cwt(sig, widths, 'mexh')
+# plt.imshow(cwtmatr, extent=[-1, 1, 1, 31], cmap='PRGn', aspect='auto',
+#            vmax=abs(cwtmatr).max(), vmin=-abs(cwtmatr).max())
+# plt.show()
+# -------------------------------------------------
+# import matplotlib.pyplot as plt
+# import numpy as np
+# import pywt
+#
+# with open("data/example0.json", "r") as file:
+#     y = json.load(file)
+# coef, freqs = pywt.cwt(y[40:500], np.arange(1, 460), 'mexh')
+# plt.matshow(coef)
+# plt.savefig("data/spectrogram_example_0.png", bbox_inches='tight', pad_inches=0)
+# plt.show()
+
+# import json
+#
+# import matplotlib.pyplot as plt
+# import numpy as np
+# import pywt
+#
+# # Load the data from the JSON file
+# with open("data/example0.json", "r") as file:
+#     y = json.load(file)
+#
+# # Perform the continuous wavelet transform
+# coef, freqs = pywt.cwt(y[40:500], np.arange(1, 33), 'mexh')
+# # coef = pywt.wavedec(y[40:460], 'mexh', level=32)
+# # Create the plot
+# plt.matshow(coef, aspect='auto')
+# plt.axis('off')  # Turn off the axes for a cleaner image
+#
+# # Save the figure with the desired size
+# plt.savefig("data/spectrogram_example_0.png", bbox_inches='tight', pad_inches=0, dpi=32)
+# plt.show()
+# -------------------------------------------------
+
+import json
+
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy import signal
+import pywt
 
-rng = np.random.default_rng()
+# Load the data from the JSON file
+with open("data/example0.json", "r") as file:
+    y = json.load(file)
 
-fs = 10e3
-N = 1e5
-amp = 2 * np.sqrt(2)
-noise_power = 0.01 * fs / 2
-time = np.arange(N) / float(fs)
-mod = 500 * np.cos(2 * np.pi * 0.25 * time)
-carrier = amp * np.sin(2 * np.pi * 3e3 * time + mod)
-noise = rng.normal(scale=np.sqrt(noise_power), size=time.shape)
-noise *= np.exp(-time / 5)
-x = carrier + noise
-print("X: ", x)
-print("Shape of X: ", x.shape)
-f, t, Sxx = signal.spectrogram(x, fs)
-plt.pcolormesh(t, f, Sxx, shading='gouraud')
-plt.ylabel('Frequency [Hz]')
-plt.xlabel('Time [sec]')
+# Perform the continuous wavelet transform
+coef, freqs = pywt.cwt(y[40:500], np.arange(1, 33), 'mexh', sampling_period=1)
+
+# Create a figure with specific size (1x1 inch) and DPI (32)
+# fig, ax = plt.subplots(figsize=(1, 1), dpi=42)
+fig, ax = plt.subplots()
+
+# Plot the coefficients matrix as a spectrogram
+ax.matshow(coef)
+ax.axis('off')  # Turn off the axes for a cleaner image
+
+# Save the figure with the desired size and DPI
+fig.savefig("data/spectrogram_example_0.png", bbox_inches='tight', pad_inches=0)
+
+# Display the plot
 plt.show()
+
+# Close the figure to release resources
+plt.close(fig)
