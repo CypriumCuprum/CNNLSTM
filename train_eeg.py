@@ -1,3 +1,4 @@
+import os
 import warnings
 from time import sleep
 
@@ -13,8 +14,8 @@ warnings.filterwarnings("ignore")
 
 device = ("cuda" if torch.cuda.is_available() else "cpu")
 
-train_set = EEG_ImageDataset(r"data\spectrogram")
-valid_set = EEG_ImageDataset(r"data\spectrogram")
+train_set = EEG_ImageDataset(r"/kaggle/input/eeg-signal-image-time-frequency")
+valid_set = EEG_ImageDataset(r"/kaggle/input/eeg-signal-image-time-frequency")
 
 train_loader = DataLoader(dataset=train_set, batch_size=8, pin_memory=True, shuffle=True)
 valid_loader = DataLoader(dataset=valid_set, batch_size=8, pin_memory=True, shuffle=True)
@@ -74,6 +75,8 @@ for epoch in range(num_epochs):
 
                 if val_acc > best_val_acc:
                     best_val_acc = val_acc
+                    if os.path.exists("save"):
+                        os.makedirs("save")
                     torch.save(model.state_dict(), "save/model_best.pth")
 
                 loop.set_postfix(val_accuracy=val_acc)
