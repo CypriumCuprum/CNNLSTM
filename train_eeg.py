@@ -75,7 +75,7 @@ for epoch in range(num_epochs):
 
                 if val_acc > best_val_acc:
                     best_val_acc = val_acc
-                    if os.path.exists("save"):
+                    if not os.path.exists("save"):
                         os.makedirs("save")
                     torch.save(model.state_dict(), "save/model_best.pth")
 
