@@ -20,10 +20,11 @@ valid_set = EEG_ImageDataset(r"/kaggle/input/eeg-signal-image-time-frequency/spe
 train_loader = DataLoader(dataset=train_set, batch_size=8, pin_memory=True, shuffle=True)
 valid_loader = DataLoader(dataset=valid_set, batch_size=8, pin_memory=True, shuffle=True)
 
-model = CNNLSTM(num_classes=40).to(device)
+model = CNNLSTM(num_classes=10).to(device)
 
 criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.SGD(model.parameters(), lr=0.00001, momentum=0.9)
+# optimizer = torch.optim.SGD(model.parameters(), lr=0.00001, momentum=0.9)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
 
 model.train()
 
