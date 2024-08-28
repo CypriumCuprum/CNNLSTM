@@ -47,12 +47,11 @@ class FireDataset(Dataset):
 
 class EEG_ImageDataset(Dataset):
     def __init__(self, root, transform=transforms.Compose(
-        [transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]), numclass=10):
+        [transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]), numclass=40):
         self.root = root
         self.transform = transform
-        self.all_class = os.listdir(root)
-        self.all_class = self.all_class[:numclass]
-
+        self.all_class = os.listdir(root)[:numclass]
+        # self.all_class = self.all_class[:numclass]
         self.x = []
         self.y = []
         for (i, label) in enumerate(self.all_class):
@@ -72,7 +71,7 @@ class EEG_ImageDataset(Dataset):
 
         all_images = os.listdir(os.path.join(self.root, label, data))
         images = torch.tensor(())
-        for img in all_images[:15]:
+        for img in all_images:
             img = Image.open(os.path.join(self.root, label, data, img)).convert('RGB').resize((224, 224))
             img = self.transform(img)
             img = Variable(torch.unsqueeze(img, 0))
