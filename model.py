@@ -48,6 +48,7 @@ class CNNLSTM2(nn.Module):
         for t in range(x_3d.size(1)):
             with torch.no_grad():
                 x = self.resnet(x_3d[:, t, :, :, :])
+                print("X Shape: ", x.shape)
                 x_lstm = torch.cat((x_lstm, x.unsqueeze(1)), 1) if x_lstm is not None else x.unsqueeze(1)
 
         x_lstm = x_lstm.transpose(1, 2)

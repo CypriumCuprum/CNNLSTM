@@ -47,7 +47,7 @@ class FireDataset(Dataset):
 
 class EEG_ImageDataset(Dataset):
     def __init__(self, root, transform=transforms.Compose(
-        [transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]), numclass=40):
+        [transforms.ToTensor(), transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))]), numclass=40):
         self.root = root
         self.transform = transform
         self.all_class = os.listdir(root)[:numclass]

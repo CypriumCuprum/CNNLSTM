@@ -14,14 +14,14 @@ warnings.filterwarnings("ignore")
 
 device = ("cuda" if torch.cuda.is_available() else "cpu")
 
-train_set = EEG_ImageDataset(r"/kaggle/input/eeg-signal-image-time-frequency/spectrogram")
-valid_set = EEG_ImageDataset(r"/kaggle/input/eeg-signal-image-time-frequency/spectrogram")
+# train_set = EEG_ImageDataset(r"/kaggle/input/eeg-signal-image-time-frequency/spectrogram")
+# valid_set = EEG_ImageDataset(r"/kaggle/input/eeg-signal-image-time-frequency/spectrogram")
 
-# train_set = EEG_ImageDataset(f"data/spectrogram", numclass=40)
-# valid_set = EEG_ImageDataset(f"data/spectrogram", numclass=40)
+train_set = EEG_ImageDataset(f"data/spectrogram", numclass=40)
+valid_set = EEG_ImageDataset(f"data/spectrogram", numclass=40)
 
-train_loader = DataLoader(dataset=train_set, batch_size=1, pin_memory=True, shuffle=True)
-valid_loader = DataLoader(dataset=valid_set, batch_size=1, pin_memory=True, shuffle=True)
+train_loader = DataLoader(dataset=train_set, batch_size=2, pin_memory=True, shuffle=True)
+valid_loader = DataLoader(dataset=valid_set, batch_size=2, pin_memory=True, shuffle=True)
 
 model = CNNLSTM2(num_classes=40).to(device)
 
