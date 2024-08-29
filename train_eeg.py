@@ -8,25 +8,25 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from dataset import EEG_ImageDataset
-from model import CNNLSTM
+from model import CNNLSTM2
 
 warnings.filterwarnings("ignore")
 
 device = ("cuda" if torch.cuda.is_available() else "cpu")
 
-train_set = EEG_ImageDataset(r"/kaggle/input/eeg-signal-image-time-frequency/spectrogram")
-valid_set = EEG_ImageDataset(r"/kaggle/input/eeg-signal-image-time-frequency/spectrogram")
+# train_set = EEG_ImageDataset(r"/kaggle/input/eeg-signal-image-time-frequency/spectrogram")
+# valid_set = EEG_ImageDataset(r"/kaggle/input/eeg-signal-image-time-frequency/spectrogram")
 
-# train_set = EEG_ImageDataset(f"data/spectrogram", numclass=40)
-# valid_set = EEG_ImageDataset(f"data/spectrogram", numclass=40)
+train_set = EEG_ImageDataset(f"data/spectrogram", numclass=40)
+valid_set = EEG_ImageDataset(f"data/spectrogram", numclass=40)
 
-train_loader = DataLoader(dataset=train_set, batch_size=64, pin_memory=True, shuffle=True)
-valid_loader = DataLoader(dataset=valid_set, batch_size=64, pin_memory=True, shuffle=True)
+train_loader = DataLoader(dataset=train_set, batch_size=2, pin_memory=True, shuffle=True)
+valid_loader = DataLoader(dataset=valid_set, batch_size=2, pin_memory=True, shuffle=True)
 
-model = CNNLSTM(num_classes=40).to(device)
+model = CNNLSTM2(num_classes=40).to(device)
 
 criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.SGD(model.parameters(), lr=0.0005, momentum=0.9, weight_decay=0.0001)
+optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 # optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
 
 model.train()
@@ -47,6 +47,7 @@ for epoch in range(num_epochs):
         x = x.to(device=device)
         y = y.to(device=device)
 
+        # print(x.shape)
         outputs = model(x)
 
         loss = criterion(outputs, y)
