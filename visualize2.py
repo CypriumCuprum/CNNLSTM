@@ -19,7 +19,7 @@ def _create_scaleogram(signal: np.ndarray) -> np.ndarray:
     # Scale s corresponds to a wavelet with s*17 samples.
     # The scales in scale_list range from 1 to 16.75. The widest wavelet is
     # 17*16.75 = 284.75 wide, which is just over double the size of the signal.
-    scale_list = np.arange(start=0, stop=32) + 1  # 128
+    scale_list = np.arange(start=0, stop=120) + 1  # 128
     wavelet = "mexh"
     scaleogram = pywt.cwt(signal, scale_list, wavelet)[0]
     return scaleogram
