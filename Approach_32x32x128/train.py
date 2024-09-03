@@ -1,5 +1,6 @@
 import torch
 import torch.nn.functional as F
+import os
 
 
 def train(model, loader, optimizer, device, args):
@@ -79,4 +80,6 @@ def train(model, loader, optimizer, device, args):
         accuracies_per_epoch['test'].append(TeA)
 
         if epoch % args.saveCheck == 0:
+            if not os.path.exists('rs'):
+                os.makedirs('rs')
             torch.save(model, 'rs/%s_epoch_%d.pth' % (args.model_type, epoch))
