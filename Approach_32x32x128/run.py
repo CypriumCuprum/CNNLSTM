@@ -33,8 +33,8 @@ if args.path_new_split:
     print(length_dataset)
     ratio = {"train": 70, "val": 15, "test": 15}
     make_split(length_dataset, ratio, path_new_split)
+    args.splits_path = args.path_new_split
 
-args.splits_path = args.path_new_split
 print(args.splits_path)
 loader = {split: DataLoader(Splitter(EEGData, args.splits_path, args.split_num, split), batch_size=args.batch_size,
                             shuffle=True) for split in ["train", "val", "test"]}
