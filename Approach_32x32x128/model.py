@@ -16,7 +16,7 @@ class TestCNNModel(unittest.TestCase):
 
 
 class CNNModel128(nn.Module):
-    def __init__(self, num_classes=10):
+    def __init__(self, num_classes=40):
         super(CNNModel128, self).__init__()
 
         # Convolutional layers

@@ -47,7 +47,8 @@ class EEGDataset128Channel(Dataset):
     def __init__(self, filedata, start, end):
         self.filedata = filedata
         self.data = torch.load(filedata)
-        self.data = self.data[start:end]
+        if end != -1:
+            self.data = self.data[start:end]
 
     def __len__(self):
         return len(self.data)
@@ -86,8 +87,8 @@ def make_split(length_dataset, ratio: dict, save_path):
     test_ratio = ratio["test"]
     assert train_ratio + val_ratio + test_ratio == 100  # Check sum of ratio
     num_data = length_dataset
-    num_train = int(num_data * train_ratio)
-    num_val = int(num_data * val_ratio)
+    num_train = int(num_data * train_ratio / 100)
+    num_val = int(num_data * val_ratio / 100)
     num_test = num_data - num_train - num_val
     assert num_train + num_val + num_test == num_data
     full_range = list(range(length_dataset))
@@ -100,4 +101,5 @@ def make_split(length_dataset, ratio: dict, save_path):
     split = {"train": train_idx, "val": val_idx, "test": test_idx}
     split = [split]
     format_split = {"splits": split}
+    print(format_split)
     torch.save(format_split, save_path)

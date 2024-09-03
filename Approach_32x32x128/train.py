@@ -2,7 +2,7 @@ import torch
 import torch.nn.functional as F
 
 
-def train(model, loader, optimizer, epochs, device, args):
+def train(model, loader, optimizer, device, args):
     model.train()
     losses_per_epoch = {"train": [], "val": [], "test": []}
     accuracies_per_epoch = {"train": [], "val": [], "test": []}
@@ -10,7 +10,7 @@ def train(model, loader, optimizer, epochs, device, args):
     best_accuracy_val = 0
     best_epoch = 0
 
-    for epoch in range(epochs):
+    for epoch in range(args.epochs):
         losses = {"train": 0, "val": 0, "test": 0}
         accuracies = {"train": 0, "val": 0, "test": 0}
         counts = {"train": 0, "val": 0, "test": 0}
@@ -24,7 +24,7 @@ def train(model, loader, optimizer, epochs, device, args):
 
             for i, (signal, label) in enumerate(loader[split]):
                 signal = signal.to(device)
-                label = label.to(device)
+                label = label.to(device, dtype=torch.int64)
 
                 # Forward
                 output = model(signal)
@@ -32,9 +32,8 @@ def train(model, loader, optimizer, epochs, device, args):
                 # Loss
                 loss = F.cross_entropy(output, label)
                 losses[split] += loss.item()
-
                 # Accuracy
-                _, predicted = output.data.max(1)
+                _, predicted = output.max(1)
                 correct = predicted.eq(label.data).sum().item()
                 accuracy = correct / label.size(0)
                 accuracies[split] += accuracy

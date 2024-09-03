@@ -52,7 +52,7 @@ class TestSignalProcessing(unittest.TestCase):
 
     def test_save_processed_dataset(self):
         dataset = [{"eeg": torch.rand(128, 32, 32), "label": torch.tensor(0)}]
-        path = "data/eeg_signals_32x32_128.pth"
+        path = "data/eeg_signals_32x32_128_unittest.pth"
         save_processed_dataset(dataset, path)
         dt = torch.load(path)
         self.assertIsInstance(dt, list)
