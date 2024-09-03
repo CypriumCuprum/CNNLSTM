@@ -5,6 +5,8 @@ import torch
 import random
 from torchvision import transforms
 
+random.seed(0)
+
 
 class Test_MethodDataset(unittest.TestCase):
     def test_EEGDataset128Channel(self):

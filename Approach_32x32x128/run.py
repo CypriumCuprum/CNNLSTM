@@ -4,6 +4,8 @@ from model import CNNModel128
 import torch
 import argparse
 from train import train
+import random
+import numpy
 
 from torch.utils.data import DataLoader
 
@@ -22,8 +24,16 @@ parser.add_argument("--momentum", type=float, default=0.9, help="Momentum")
 parser.add_argument("--split_num", type=int, default=0,
                     help="Split number")  # should always set 0 to avoid error when make split if split is not exist
 parser.add_argument("--saveCheck", type=int, default=10, help="Save check point")
+parser.add_argument("--seed", type=int, default=0, help="Seed for random")
 
 args = parser.parse_args()
+
+torch.manual_seed(args.seed)
+random.seed(args.seed)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
+numpy.random.seed(args.seed)
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 EEGData = EEGDataset128Channel(args.filedata, args.start, args.end)
 

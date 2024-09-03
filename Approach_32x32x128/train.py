@@ -79,4 +79,4 @@ def train(model, loader, optimizer, device, args):
         accuracies_per_epoch['test'].append(TeA)
 
         if epoch % args.saveCheck == 0:
-            torch.save(model, '%s_epoch_%d.pth' % (args.model_type, epoch))
+            torch.save(model, 'rs/%s_epoch_%d.pth' % (args.model_type, epoch))
