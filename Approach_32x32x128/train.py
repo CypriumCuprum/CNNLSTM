@@ -26,12 +26,18 @@ def train(model, loader, optimizer, device, args):
                 signal = signal.to(device)
                 label = label.to(device, dtype=torch.int64)
 
+                # print("Signal:", signal)
                 # Forward
                 output = model(signal)
 
                 # Loss
+                # print("Output:", output)
+                # print("Label:", label)
                 loss = F.cross_entropy(output, label)
+
+                # print(loss)
                 losses[split] += loss.item()
+                # print(losses[split])
                 # Accuracy
                 _, predicted = output.max(1)
                 correct = predicted.eq(label.data).sum().item()

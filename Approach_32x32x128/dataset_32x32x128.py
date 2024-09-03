@@ -3,6 +3,7 @@ import unittest
 from torch.utils.data import Dataset
 import torch
 import random
+from torchvision import transforms
 
 
 class Test_MethodDataset(unittest.TestCase):
@@ -49,6 +50,18 @@ class EEGDataset128Channel(Dataset):
         self.data = torch.load(filedata)
         if end != -1:
             self.data = self.data[start:end]
+        self.mean, self.std = self.compute_mean_std()
+
+    def compute_mean_std(self):
+        mean = torch.zeros(128)
+        std = torch.zeros(128)
+        for i in range(len(self.data)):
+            mean += torch.mean(self.data[i]["eeg"], dim=(1, 2))
+            std += torch.std(self.data[i]["eeg"], dim=(1, 2))
+        mean /= len(self.data)
+        std /= len(self.data)
+        print(mean.shape)
+        return mean, std
 
     def __len__(self):
         return len(self.data)
@@ -56,7 +69,9 @@ class EEGDataset128Channel(Dataset):
     def __getitem__(self, index):
         signal = self.data[index]
         label = signal["label"]
-        signal = signal["eeg"]  # 32x32x128
+        signal = signal["eeg"]  # 128x32x32
+        signal = (signal - self.mean[:, None, None]) / self.std[:, None, None]
+
         return signal, label
 
 
