@@ -355,33 +355,56 @@
 # plt.show()
 # -------------------------------------------------
 
-import json
+# import json
+#
+# import matplotlib.pyplot as plt
+# import numpy as np
+# import pywt
+#
+# # Load the data from the JSON file
+# with open("data/example0.json", "r") as file:
+#     y = json.load(file)
+#
+# # Perform the continuous wavelet transform
+# coef, freqs = pywt.cwt(y[40:500], np.arange(1, 33), 'mexh', sampling_period=1)
+#
+# # Create a figure with specific size (1x1 inch) and DPI (32)
+# # fig, ax = plt.subplots(figsize=(1, 1), dpi=42)
+# fig, ax = plt.subplots()
+#
+# # Plot the coefficients matrix as a spectrogram
+# ax.matshow(coef)
+# ax.axis('off')  # Turn off the axes for a cleaner image
+#
+# # Save the figure with the desired size and DPI
+# fig.savefig("data/spectrogram_example_0.png", bbox_inches='tight', pad_inches=0)
+#
+# # Display the plot
+# plt.show()
+#
+# # Close the figure to release resources
+# plt.close(fig)
+# -------------------------------------------------
 
-import matplotlib.pyplot as plt
+import json
+from matplotlib import pyplot as plt
 import numpy as np
-import pywt
+from scipy import signal
 
 # Load the data from the JSON file
 with open("data/example0.json", "r") as file:
     y = json.load(file)
+y = np.array(y)
 
-# Perform the continuous wavelet transform
-coef, freqs = pywt.cwt(y[40:500], np.arange(1, 33), 'mexh', sampling_period=1)
-
-# Create a figure with specific size (1x1 inch) and DPI (32)
-# fig, ax = plt.subplots(figsize=(1, 1), dpi=42)
-fig, ax = plt.subplots()
-
-# Plot the coefficients matrix as a spectrogram
-ax.matshow(coef)
-ax.axis('off')  # Turn off the axes for a cleaner image
-
-# Save the figure with the desired size and DPI
-fig.savefig("data/spectrogram_example_0.png", bbox_inches='tight', pad_inches=0)
-
-# Display the plot
+fs = 1000
+f, t, Sxx = signal.spectrogram(y[40:500])
+print(Sxx)
+print("Sxx Shape:", Sxx.shape)
+print("f: ", f)
+print("t: ", t)
+print("f Shape: ", f.shape)
+print("t Shape: ", t.shape)
+plt.imshow(10 * np.log10(Sxx), aspect='auto', cmap='viridis')
+plt.ylabel('Frequency [Hz]')
+plt.xlabel('Time [sec]')
 plt.show()
-
-# Close the figure to release resources
-plt.close(fig)
-# -------------------------------------------------

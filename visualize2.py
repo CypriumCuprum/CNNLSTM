@@ -11,17 +11,9 @@ def _create_scaleogram(signal: np.ndarray) -> np.ndarray:
     The resulting scaleogram represents scale in the first dimension, time in
     the second dimension, and the color shows amplitude.
     """
-    signal = signal[20:460]
-    n = len(signal)  # 128
-
-    # In the PyWavelets implementation, scale 1 corresponds to a wavelet with
-    # domain [-8, 8], which means that it covers 17 samples (upper - lower + 1).
-    # Scale s corresponds to a wavelet with s*17 samples.
-    # The scales in scale_list range from 1 to 16.75. The widest wavelet is
-    # 17*16.75 = 284.75 wide, which is just over double the size of the signal.
-    scale_list = np.arange(start=0, stop=120) + 1  # 128
-    wavelet = "mexh"
-    scaleogram = pywt.cwt(signal, scale_list, wavelet)[0]
+    signal = signal[0:33]
+    scale_list = np.arange(start=0, stop=1) + 1
+    scaleogram = pywt.cwt(signal, scale_list, "mexh")[0]
     return scaleogram
 
 
@@ -67,5 +59,7 @@ if __name__ == "__main__":
     print(eeg.shape)
     # Create the scaleogram
     scaleogram = _create_scaleogram(eeg)
+    print(scaleogram.shape)
+    print(scaleogram)
     plt.imshow(scaleogram, aspect="auto", cmap="viridis")
     plt.show()

@@ -251,6 +251,7 @@ parser.add_argument("--model", type=str, default="CNN128Channels", help="Model n
 parser.add_argument("--save_path", type=str, default="save", help="Save path")
 parser.add_argument("--device", type=str, default="cuda", help="Device")
 parser.add_argument("--eeg-dataset", type=str, default="data/spectrogram", help="EEG dataset path")
+parser.add_argument("--num-workers", type=int, default=4, help="Number of workers for DataLoader")
 args = parser.parse_args()
 
 device = torch.device(args.device if torch.cuda.is_available() else "cpu")
@@ -259,8 +260,10 @@ device = torch.device(args.device if torch.cuda.is_available() else "cpu")
 train_set = EEG_ImageDataset(args.eeg_dataset, numclass=args.numclass)
 valid_set = EEG_ImageDataset(args.eeg_dataset, numclass=args.numclass)
 
-train_loader = DataLoader(dataset=train_set, batch_size=args.batch_size, pin_memory=True, shuffle=True, num_workers=4)
-valid_loader = DataLoader(dataset=valid_set, batch_size=args.batch_size, pin_memory=True, shuffle=True, num_workers=4)
+train_loader = DataLoader(dataset=train_set, batch_size=args.batch_size, pin_memory=True, shuffle=True,
+                          num_workers=args.num_workers)
+valid_loader = DataLoader(dataset=valid_set, batch_size=args.batch_size, pin_memory=True, shuffle=True,
+                          num_workers=args.num_workers)
 
 model = CNN128Channels(num_classes=args.numclass).to(device)
 
