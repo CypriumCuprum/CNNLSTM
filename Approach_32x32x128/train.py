@@ -55,11 +55,11 @@ def train(model, loader, optimizer, device, schedule_lr, args):
                     optimizer.step()
 
                 # Tensorboard
-                if i % 50 == 0:
-                    writer.add_scalars(f"Loss", {split: (losses[split] / counts[split])},
-                                       epoch * len(loader[split]) + i)
-                    writer.add_scalars(f"Accuracy", {split: (accuracies[split] / counts[split])},
-                                       epoch * len(loader[split]) + i)
+                # if i % 50 == 0:
+                #     writer.add_scalars(f"Loss", {split: (losses[split] / counts[split])},
+                #                        epoch * len(loader[split]) + i)
+                #     writer.add_scalars(f"Accuracy", {split: (accuracies[split] / counts[split])},
+                #                        epoch * len(loader[split]) + i)
         # End Epochs
         if accuracies["val"] / counts["val"] >= best_accuracy_val:
             best_accuracy_val = accuracies["val"] / counts["val"]
@@ -79,6 +79,9 @@ def train(model, loader, optimizer, device, schedule_lr, args):
         accuracies_per_epoch['train'].append(TrA)
         accuracies_per_epoch['val'].append(VA)
         accuracies_per_epoch['test'].append(TeA)
+
+        writer.add_scalars("Loss", {"train": TrL, "val": VL, "test": TeL}, epoch)
+        writer.add_scalars("Accuracy", {"train": TrA, "val": VA, "test": TeA}, epoch)
 
         if epoch % args.saveCheck == 0:
             if not os.path.exists('rs'):
