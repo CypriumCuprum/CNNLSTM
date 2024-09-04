@@ -7,7 +7,7 @@ import argparse
 
 from torch.utils.data import DataLoader
 
-from Approach_32x32x128.dataset_32x32x128 import EEGDataset128Channel, Splitter
+from dataset_32x32x128 import EEGDataset128Channel, Splitter
 
 
 def evaluate(model, test_loader, device):
