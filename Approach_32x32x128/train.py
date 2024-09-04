@@ -56,9 +56,10 @@ def train(model, loader, optimizer, device, schedule_lr, args):
 
                 # Tensorboard
                 if i % 50 == 0:
-                    writer.add_scalar(f"Loss", {split: (losses[split] / counts[split])}, epoch * len(loader[split]) + i)
-                    writer.add_scalar(f"Accuracy", {split: (accuracies[split] / counts[split])},
-                                      epoch * len(loader[split]) + i)
+                    writer.add_scalars(f"Loss", {split: (losses[split] / counts[split])},
+                                       epoch * len(loader[split]) + i)
+                    writer.add_scalars(f"Accuracy", {split: (accuracies[split] / counts[split])},
+                                       epoch * len(loader[split]) + i)
         # End Epochs
         if accuracies["val"] / counts["val"] >= best_accuracy_val:
             best_accuracy_val = accuracies["val"] / counts["val"]
@@ -70,14 +71,7 @@ def train(model, loader, optimizer, device, schedule_lr, args):
                                          "test"] / counts["test"]
         print(
             "Epoch {0}: TrL={1:.4f}, TrA={2:.4f}, VL={3:.4f}, VA={4:.4f}, TeL={5:.4f}, TeA={6:.4f}, TeA at max VA = {7:.4f} at epoch {8:d}".format(
-                epoch,
-                losses["train"] / counts["train"],
-                accuracies["train"] / counts["train"],
-                losses["val"] / counts["val"],
-                accuracies["val"] / counts["val"],
-                losses["test"] / counts["test"],
-                accuracies["test"] / counts["test"],
-                best_accuracy, best_epoch))
+                epoch, TrL, TrA, VL, VA, TeL, TeA, best_accuracy, best_epoch))
 
         losses_per_epoch['train'].append(TrL)
         losses_per_epoch['val'].append(VL)
