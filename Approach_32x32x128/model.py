@@ -14,6 +14,15 @@ class TestCNNModel(unittest.TestCase):
         self.assertEqual(output.shape, (1, 10))
         self.assertEqual(output.shape[1], num_classes)
 
+    def test_CNNModel128_4L(self):
+        num_classes = 10
+        test_model = CNNModel128_4L(num_classes=num_classes)
+        inp = torch.rand(1, 128, 32, 32)
+        output = test_model(inp)
+        self.assertIsInstance(output, torch.Tensor)
+        self.assertEqual(output.shape, (1, 10))
+        self.assertEqual(output.shape[1], num_classes)
+
 
 class CNNModel128(nn.Module):
     def __init__(self, num_classes=40):
@@ -71,8 +80,7 @@ class CNNModel128_4L(nn.Module):
         self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
 
         # Fully connected layers
-        self.fc1 = nn.Linear(256 * 4 * 4, 1024)
-        self.relu3 = nn.ReLU()
+        self.fc1 = nn.Linear(256 * 8 * 8, 1024)
         self.dropout = nn.Dropout(p=0.2)
 
         self.fc2 = nn.Linear(1024, num_classes)
@@ -80,19 +88,26 @@ class CNNModel128_4L(nn.Module):
     def forward(self, x):
         # Convolutional layers
         x = self.conv1(x)
-        x = self.relu1(x)
-        x = self.pool1(x)
+        x = self.relu(x)
 
         x = self.conv2(x)
-        x = self.relu2(x)
-        x = self.pool2(x)
+        x = self.relu(x)
+        x = self.pool(x)
+
+        x = self.conv3(x)
+        x = self.relu(x)
+
+        x = self.conv4(x)
+        x = self.relu(x)
+
+        x = self.pool(x)
 
         # Flatten the output
-        x = x.view(-1, 128 * 8 * 8)
+        x = x.view(-1, 256 * 8 * 8)
 
         # Fully connected layers
         x = self.fc1(x)
-        x = self.relu3(x)
+        x = self.relu(x)
         x = self.dropout(x)
 
         x = self.fc2(x)

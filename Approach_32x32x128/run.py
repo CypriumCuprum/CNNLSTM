@@ -1,5 +1,5 @@
 from dataset_32x32x128 import EEGDataset128Channel, Splitter, make_split
-from model import CNNModel128
+from model import CNNModel128, CNNModel128_4L
 
 import torch
 import argparse
@@ -26,7 +26,7 @@ parser.add_argument("--split_num", type=int, default=0,
                     help="Split number")  # should always set 0 to avoid error when make split if split is not exist
 parser.add_argument("--saveCheck", type=int, default=10, help="Save check point")
 parser.add_argument("--seed", type=int, default=0, help="Seed for random")
-
+parser.add_argument("--lr_step", type=int, default=10, help="Step for learning rate scheduler")
 args = parser.parse_args()
 
 torch.manual_seed(args.seed)
@@ -49,7 +49,14 @@ print(len(EEGData))
 print(args.splits_path)
 loader = {split: DataLoader(Splitter(EEGData, args.splits_path, args.split_num, split), batch_size=args.batch_size,
                             shuffle=True) for split in ["train", "val", "test"]}
+
 model = CNNModel128()
+if args.model_type == "CNNModel128":
+    model = CNNModel128()
+
+if args.model_type == "CNNModel128_4L":
+    model = CNNModel128_4L()
+
 model.to(device)
 optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 
