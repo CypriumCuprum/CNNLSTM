@@ -48,7 +48,7 @@ def train(model, loader, optimizer, device, args):
 
                 # Backward and optimization
                 if split == "train":
-                    optimizer.zero_grad()
+                    # optimizer.zero_grad()
                     loss.backward()
                     optimizer.step()
 
