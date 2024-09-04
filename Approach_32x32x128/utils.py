@@ -27,7 +27,7 @@ def evaluate(model, test_loader, device):
 
     cm = confusion_matrix.numpy()
     plt.figure(figsize=(10, 10))
-    sns.heatmap(cm, annot=True, fmt="d", cmap='Blues', xticklabels=np.arange(40), yticklabels=np.arange(40))
+    sns.heatmap(cm, annot=True, fmt=".2f", cmap='Blues', xticklabels=np.arange(40), yticklabels=np.arange(40))
     plt.xlabel("Predicted")
     plt.ylabel("Actual")
     plt.title("Confusion Matrix")
