@@ -84,3 +84,4 @@ def train(model, loader, optimizer, device, schedule_lr, args):
                 os.makedirs('rs')
             torch.save(model, 'rs/%s_epoch_%d.pth' % (args.model_type, epoch))
     schedule_lr.step()
+    print(schedule_lr.get_lr())
