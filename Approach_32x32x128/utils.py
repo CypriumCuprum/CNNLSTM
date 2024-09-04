@@ -32,24 +32,24 @@ def evaluate(model, test_loader, device):
     plt.ylabel("Actual")
     plt.title("Confusion Matrix")
     plt.show()
+    plt.savefig("confusion_matrix.png")
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser("EEG Signal Classification")
+parser = argparse.ArgumentParser("EEG Signal Classification")
 
-    parser.add_argument("--file_model", type=str, default="CNNModel128", help="Model type")
-    parser.add_argument("--filedata", type=str, default="../data/eeg_signals_32x32_128.pth", help="Path to data file")
-    parser.add_argument("--splits_path", type=str, default="data/block_splits_by_image_all.pth",
-                        help="Path to split file")
-    parser.add_argument("--split_num", type=int, default=0, help="Split number")
-    parser.add_argument("--batch_size", type=int, default=4, help="Batch size for training")
-    args = parser.parse_args()
+parser.add_argument("--file_model", type=str, default="CNNModel128", help="Model type")
+parser.add_argument("--filedata", type=str, default="../data/eeg_signals_32x32_128.pth", help="Path to data file")
+parser.add_argument("--splits_path", type=str, default="data/block_splits_by_image_all.pth",
+                    help="Path to split file")
+parser.add_argument("--split_num", type=int, default=0, help="Split number")
+parser.add_argument("--batch_size", type=int, default=4, help="Batch size for training")
+args = parser.parse_args()
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = torch.load(args.file_model, weights_only=False)
-    EEGData = EEGDataset128Channel(args.filedata, 0, -1)
-    loader = {
-        "test": DataLoader(Splitter(EEGData, args.splits_path, args.split_num, "test"), batch_size=args.batch_size,
-                           shuffle=False)}
+device_eval = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model_load = torch.load(args.file_model, weights_only=False)
+EEGData = EEGDataset128Channel(args.filedata, 0, -1)
+loader = {
+    "test": DataLoader(Splitter(EEGData, args.splits_path, args.split_num, "test"), batch_size=args.batch_size,
+                       shuffle=False)}
 
-    evaluate(model, loader["test"], device)
+evaluate(model_load, loader["test"], device_eval)
