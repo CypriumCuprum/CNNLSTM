@@ -116,12 +116,14 @@ class CNNModel128_4L(nn.Module):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    # unittest.main()
     # Create an instance of the CNN model
     model = CNNModel128()
 
     # Print the model summary
     print(model)
+
+    print("CNN Model 128 Channels 4 Conv Layers:", CNNModel128_4L())
 
 # import torch
 # import torch.nn as nn
