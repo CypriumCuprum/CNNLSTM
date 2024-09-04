@@ -22,10 +22,8 @@ def train(model, loader, optimizer, device, schedule_lr, args):
             else:
                 model.eval()
                 torch.set_grad_enabled(False)
-            cnt = 0
 
             for i, (signal, label) in enumerate(loader[split]):
-                cnt += 1
                 signal = signal.to(device)
                 label = label.to(device, dtype=torch.int64)
 
@@ -53,7 +51,6 @@ def train(model, loader, optimizer, device, schedule_lr, args):
                     optimizer.zero_grad()
                     loss.backward()
                     optimizer.step()
-            print("Iteration: ", cnt)
         # End Epochs
         if accuracies["val"] / counts["val"] >= best_accuracy_val:
             best_accuracy_val = accuracies["val"] / counts["val"]
