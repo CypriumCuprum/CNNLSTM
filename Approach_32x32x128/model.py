@@ -58,6 +58,48 @@ class CNNModel128(nn.Module):
         return x
 
 
+class CNNModel128_4L(nn.Module):
+    def __init__(self, num_classes=40):
+        super(CNNModel128_4L, self).__init__()
+
+        # Convolutional layers
+        self.conv1 = nn.Conv2d(128, 256, kernel_size=3, stride=1, padding=1)
+        self.conv2 = nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1)
+        self.conv3 = nn.Conv2d(256, 512, kernel_size=3, stride=1, padding=1)
+        self.conv4 = nn.Conv2d(512, 256, kernel_size=3, stride=1, padding=1)
+        self.relu = nn.ReLU()
+        self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
+
+        # Fully connected layers
+        self.fc1 = nn.Linear(256 * 4 * 4, 1024)
+        self.relu3 = nn.ReLU()
+        self.dropout = nn.Dropout(p=0.2)
+
+        self.fc2 = nn.Linear(1024, num_classes)
+
+    def forward(self, x):
+        # Convolutional layers
+        x = self.conv1(x)
+        x = self.relu1(x)
+        x = self.pool1(x)
+
+        x = self.conv2(x)
+        x = self.relu2(x)
+        x = self.pool2(x)
+
+        # Flatten the output
+        x = x.view(-1, 128 * 8 * 8)
+
+        # Fully connected layers
+        x = self.fc1(x)
+        x = self.relu3(x)
+        x = self.dropout(x)
+
+        x = self.fc2(x)
+
+        return x
+
+
 if __name__ == "__main__":
     unittest.main()
     # Create an instance of the CNN model

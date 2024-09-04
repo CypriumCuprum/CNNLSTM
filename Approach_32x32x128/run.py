@@ -8,6 +8,7 @@ import random
 import numpy
 
 from torch.utils.data import DataLoader
+from torch.optim.lr_scheduler import StepLR
 
 parser = argparse.ArgumentParser("EEG Signal Classification")
 
@@ -52,5 +53,7 @@ model = CNNModel128()
 model.to(device)
 optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 
+schedule_lr = StepLR(optimizer, step_size=15, gamma=0.1)
+
 # Train
-train(model, loader, optimizer, device, args)
+train(model, loader, schedule_lr, device, args)
