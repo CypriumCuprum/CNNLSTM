@@ -60,7 +60,7 @@ if args.model_type == "CNNModel128_4L":
 model.to(device)
 optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 
-schedule_lr = StepLR(optimizer, step_size=10, gamma=0.1)
+schedule_lr = StepLR(optimizer, step_size=args.lr_step, gamma=0.1)
 
 # Train
 train(model, loader, optimizer, device, schedule_lr, args)
