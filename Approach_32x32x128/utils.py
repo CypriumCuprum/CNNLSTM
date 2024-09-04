@@ -13,7 +13,7 @@ from dataset_32x32x128 import EEGDataset128Channel, Splitter
 def evaluate(model, test_loader, device):
     model.eval()
     torch.set_grad_enabled(False)
-    confusion_matrix = torch.zeros(40, 40)
+    confusion_matrix = torch.zeros(40, 40, dtype=torch.int64)
     for i, (signal, label) in enumerate(test_loader):
         signal = signal.to(device)
         label = label.to(device, dtype=torch.int64)
@@ -25,9 +25,9 @@ def evaluate(model, test_loader, device):
 
     # Plot confusion matrix
 
-    cm = confusion_matrix.numpy()
+    cm = confusion_matrix.cpu().numpy()
     plt.figure(figsize=(10, 10))
-    sns.heatmap(cm, annot=True, fmt=".2f", cmap='Blues', xticklabels=np.arange(40), yticklabels=np.arange(40))
+    sns.heatmap(cm, annot=True, fmt="d", cmap='Blues', xticklabels=np.arange(40), yticklabels=np.arange(40))
     plt.xlabel("Predicted")
     plt.ylabel("Actual")
     plt.title("Confusion Matrix")
@@ -46,7 +46,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = torch.load(args.file_model)
+    model = torch.load(args.file_model, weights_only=False)
     EEGData = EEGDataset128Channel(args.filedata, 0, -1)
     loader = {
         "test": DataLoader(Splitter(EEGData, args.splits_path, args.split_num, "test"), batch_size=args.batch_size,
