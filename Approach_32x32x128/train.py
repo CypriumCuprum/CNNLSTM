@@ -56,8 +56,8 @@ def train(model, loader, optimizer, device, schedule_lr, args):
 
                 # Tensorboard
                 if i % 50 == 0:
-                    writer.add_scalar(f"Loss", {split: losses[split] / counts[split]}, epoch * len(loader[split]) + i)
-                    writer.add_scalar(f"Accuracy", {split: accuracies[split] / counts[split]},
+                    writer.add_scalar(f"Loss", {split: (losses[split] / counts[split])}, epoch * len(loader[split]) + i)
+                    writer.add_scalar(f"Accuracy", {split: (accuracies[split] / counts[split])},
                                       epoch * len(loader[split]) + i)
         # End Epochs
         if accuracies["val"] / counts["val"] >= best_accuracy_val:
