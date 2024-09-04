@@ -3,7 +3,7 @@ import torch.nn.functional as F
 import os
 
 
-def train(model, loader, optimizer, device, args):
+def train(model, loader, optimizer, device, schedule_lr, args):
     model.train()
     losses_per_epoch = {"train": [], "val": [], "test": []}
     accuracies_per_epoch = {"train": [], "val": [], "test": []}
@@ -83,3 +83,4 @@ def train(model, loader, optimizer, device, args):
             if not os.path.exists('rs'):
                 os.makedirs('rs')
             torch.save(model, 'rs/%s_epoch_%d.pth' % (args.model_type, epoch))
+    schedule_lr.step()

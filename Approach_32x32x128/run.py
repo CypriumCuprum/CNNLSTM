@@ -56,4 +56,4 @@ optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=args.moment
 schedule_lr = StepLR(optimizer, step_size=15, gamma=0.1)
 
 # Train
-train(model, loader, optimizer, device, args)
+train(model, loader, optimizer, device, schedule_lr, args)
