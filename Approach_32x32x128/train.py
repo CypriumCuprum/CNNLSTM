@@ -1,9 +1,11 @@
 import torch
 import torch.nn.functional as F
 import os
+from torch.utils.tensorboard import SummaryWriter
 
 
 def train(model, loader, optimizer, device, schedule_lr, args):
+    writer = SummaryWriter("runs/" + args.model_type)
     model.train()
     losses_per_epoch = {"train": [], "val": [], "test": []}
     accuracies_per_epoch = {"train": [], "val": [], "test": []}
@@ -51,6 +53,12 @@ def train(model, loader, optimizer, device, schedule_lr, args):
                     optimizer.zero_grad()
                     loss.backward()
                     optimizer.step()
+
+                # Tensorboard
+                if i % 50 == 0:
+                    writer.add_scalar(f"Loss/{split}", losses[split] / counts[split], epoch * len(loader[split]) + i)
+                    writer.add_scalar(f"Accuracy/{split}", accuracies[split] / counts[split],
+                                      epoch * len(loader[split]) + i)
         # End Epochs
         if accuracies["val"] / counts["val"] >= best_accuracy_val:
             best_accuracy_val = accuracies["val"] / counts["val"]
