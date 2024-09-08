@@ -64,6 +64,8 @@ def train(model, loader, optimizer, device, schedule_lr, args):
         if accuracies["val"] / counts["val"] >= best_accuracy_val:
             best_accuracy_val = accuracies["val"] / counts["val"]
             best_accuracy = accuracies["test"] / counts["test"]
+            if not os.path.exists('rs'):
+                os.makedirs('rs')
             torch.save(model, 'rs/%s_best.pth' % args.model_type)
             best_epoch = epoch
 
