@@ -54,7 +54,7 @@ def draw_spectrogram_folder(signal_dataset_128, index=0, root="data/spectrogram"
 
 
 if __name__ == "__main__":
-    filedata = "data/eeg_55_95_std.pth"
+    filedata = "data/eeg_signals_raw_with_mean_std.pth"
     f_content = read_pth_file(filedata)
     # print(f_content)
     # print("Dataset level 0:")

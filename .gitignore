@@ -4,3 +4,5 @@ signal.png
 draftpytorch.py
 Approach_32x32x128/rs
 Approach_32x32x128/runs
+Approach_CNN_LSTM/make_data.py
+Approach_CNN_LSTM/test
