@@ -52,6 +52,7 @@ class EEGDataset128Channel(Dataset):
         # self.data = torch.load(filedata)
         if end != -1:
             end = 11964
+        self.length = end - start + 1
         self.li_file = [f"{i}.pth" for i in range(start, end)]
         self.mean, self.std = self.compute_mean_std()
 
@@ -67,7 +68,7 @@ class EEGDataset128Channel(Dataset):
         return mean, std
 
     def __len__(self):
-        return len(self.data)
+        return self.length
 
     def __getitem__(self, index):
         signal = torch.load(f"{self.root}/{self.li_file[index]}")
