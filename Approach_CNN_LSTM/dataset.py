@@ -50,7 +50,7 @@ class EEGDataset128Channel(Dataset):
     def __init__(self, root, start, end):
         self.root = root
         # self.data = torch.load(filedata)
-        if end != -1:
+        if end == -1:
             end = 11964
         self.length = end - start + 1
         self.li_file = [f"{i}.pth" for i in range(start, end)]
