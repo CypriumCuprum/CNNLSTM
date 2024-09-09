@@ -63,10 +63,10 @@ class CNNModel128_4L(nn.Module):
 
         # Fully connected layers
         x = self.fc1(x)
-        x = self.relu(x)
-        x = self.dropout(x)
-
-        x = self.fc2(x)
+        # x = self.relu(x)
+        # x = self.dropout(x)
+        #
+        # x = self.fc2(x)
 
         return x
 
@@ -75,7 +75,10 @@ class CNN_LSTM(nn.Module):
     def __init__(self, num_classes=40):
         super(CNN_LSTM, self).__init__()
         self.cnn = CNNModel128_4L(num_classes=256)
-        self.lstm = nn.LSTM(input_size=256, hidden_size=256, num_layers=2, bidirectional=True)
+        # self.lstm = nn.LSTM(input_size=256, hidden_size=256, num_layers=2, bidirectional=True)
+        # self.fc1 = nn.Linear(512, 128)
+        # self.fc2 = nn.Linear(128, num_classes)
+        self.lstm = nn.LSTM(input_size=1024, hidden_size=256, num_layers=2, bidirectional=True)
         self.fc1 = nn.Linear(512, 128)
         self.fc2 = nn.Linear(128, num_classes)
 
