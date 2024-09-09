@@ -76,22 +76,23 @@ class CNN_LSTM(nn.Module):
         super(CNN_LSTM, self).__init__()
         self.cnn = CNNModel128_4L(num_classes=256)
         # self.lstm = nn.LSTM(input_size=256, hidden_size=256, num_layers=2, bidirectional=True)
+        self.fc1 = nn.Linear(14 * 1024, 256)
+        self.fc2 = nn.Linear(256, num_classes)
+        # self.lstm = nn.LSTM(input_size=1024, hidden_size=256, num_layers=2, bidirectional=True)
         # self.fc1 = nn.Linear(512, 128)
         # self.fc2 = nn.Linear(128, num_classes)
-        self.lstm = nn.LSTM(input_size=1024, hidden_size=256, num_layers=2, bidirectional=True)
-        self.fc1 = nn.Linear(512, 128)
-        self.fc2 = nn.Linear(128, num_classes)
 
     def forward(self, x_3d):
-        out = None
-        hidden = None
+        out = torch.Tensor(()).to(x_3d.device)
+        # hidden = None
 
         for t in range(x_3d.size(1)):
             with torch.no_grad():
                 x = self.cnn(x_3d[:, t, :, :, :])
-            out, hidden = self.lstm(x.unsqueeze(0), hidden)
+            out = torch.cat((out, x.unsqueeze(0)), 0)
 
-        x = self.fc1(out[-1, :, :])
+        # x = self.fc1(out[-1, :, :])
+        x = self.fc1(out.view(out.size(0), -1))
         x = F.relu(x)
         x = self.fc2(x)
         return x
