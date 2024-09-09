@@ -20,7 +20,7 @@ class TestMethods(unittest.TestCase):
         output = model(inp)
         self.assertIsInstance(model, nn.Module)
         self.assertIsInstance(output, torch.Tensor)
-        self.assertEqual(output.shape, (5, 2))
+        self.assertEqual(output.shape, (5, 40))
 
 
 class CNNModel128_4L(nn.Module):
@@ -89,10 +89,10 @@ class CNN_LSTM(nn.Module):
         for t in range(x_3d.size(1)):
             with torch.no_grad():
                 x = self.cnn(x_3d[:, t, :, :, :])
-            out = torch.cat((out, x.unsqueeze(0)), 0)
+            out = torch.cat((out, x), dim=1)
 
         # x = self.fc1(out[-1, :, :])
-        x = self.fc1(out.view(out.size(0), -1))
+        x = self.fc1(out)
         x = F.relu(x)
         x = self.fc2(x)
         return x
