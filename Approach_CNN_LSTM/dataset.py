@@ -54,19 +54,19 @@ class EEGDataset128Channel(Dataset):
             end = 11965
         self.length = end - start
         self.li_file = [f"{i}.pth" for i in range(start, end)]
-        self.data = [torch.load(f"{self.root}/{i}") for i in self.li_file]
+        # self.data = [torch.load(f"{self.root}/{i}") for i in self.li_file]
         self.mean, self.std = self.compute_mean_std()
 
     def compute_mean_std(self):
         mean = torch.zeros(128)
         std = torch.zeros(128)
-        # for i in self.li_file:
-        #     dt = torch.load(f"{self.root}/{i}")
-        #     mean += torch.mean(dt["eeg"], dim=(0, 2, 3))
-        #     std += torch.std(dt["eeg"], dim=(0, 2, 3))
-        for dt in self.data:
+        for i in self.li_file:
+            dt = torch.load(f"{self.root}/{i}")
             mean += torch.mean(dt["eeg"], dim=(0, 2, 3))
             std += torch.std(dt["eeg"], dim=(0, 2, 3))
+        # for dt in self.data:
+        #     mean += torch.mean(dt["eeg"], dim=(0, 2, 3))
+        #     std += torch.std(dt["eeg"], dim=(0, 2, 3))
         mean /= len(self.li_file)
         std /= len(self.li_file)
         return mean, std
@@ -75,8 +75,8 @@ class EEGDataset128Channel(Dataset):
         return self.length
 
     def __getitem__(self, index):
-        # signal = torch.load(f"{self.root}/{self.li_file[index]}")
-        signal = self.data[index]
+        signal = torch.load(f"{self.root}/{self.li_file[index]}")
+        # signal = self.data[index]
         label = signal["label"]
         signal = signal["eeg"]  # 128x32x32
         signal = (signal - self.mean[None, :, None, None]) / self.std[None, :, None, None]
