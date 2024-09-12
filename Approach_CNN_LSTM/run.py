@@ -27,6 +27,7 @@ parser.add_argument("--split_num", type=int, default=0,
 parser.add_argument("--saveCheck", type=int, default=10, help="Save check point")
 parser.add_argument("--seed", type=int, default=0, help="Seed for random")
 parser.add_argument("--lr_step", type=int, default=10, help="Step for learning rate scheduler")
+parser.add_argument("--model_path", type=str, default="", help="Path to save model")
 args = parser.parse_args()
 
 torch.manual_seed(args.seed)
@@ -51,6 +52,9 @@ loader = {split: DataLoader(Splitter(EEGData, args.splits_path, args.split_num, 
                             shuffle=True) for split in ["train", "val", "test"]}
 
 model = CNN_LSTM()
+
+if args.model_path:
+    model.load(args.model_path)
 
 model.to(device)
 optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
