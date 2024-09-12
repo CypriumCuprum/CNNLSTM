@@ -54,7 +54,7 @@ loader = {split: DataLoader(Splitter(EEGData, args.splits_path, args.split_num, 
 model = CNN_LSTM()
 
 if args.model_path:
-    model.load(args.model_path)
+    model = torch.load(args.model_path, weights_only=False)
 
 model.to(device)
 optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
