@@ -1,5 +1,5 @@
 from dataset import EEGDataset128Channel, Splitter, make_split
-from model import CNN_LSTM
+from model import CNN_LSTM, CNN4L_LSTM
 
 import torch
 import argparse
@@ -52,6 +52,10 @@ loader = {split: DataLoader(Splitter(EEGData, args.splits_path, args.split_num, 
                             shuffle=True) for split in ["train", "val", "test"]}
 
 model = CNN_LSTM()
+if args.model_type == "CNN_LSTM":
+    model = CNN_LSTM()
+elif args.model_type == "CNN4L_LSTM":
+    model = CNN4L_LSTM()
 
 if args.model_path:
     model = torch.load(args.model_path, weights_only=False)
