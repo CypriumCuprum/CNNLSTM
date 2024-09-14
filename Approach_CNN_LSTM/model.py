@@ -164,36 +164,34 @@ class CNN4L_LSTM(nn.Module):
         self.cnn = nn.Sequential(
             nn.Conv2d(in_channels=128, out_channels=64, kernel_size=3, padding=1),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2),  # Output: (64, 16, 16)
 
             nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, padding=1),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2),  # Output: (128, 8, 8)
+            nn.MaxPool2d(kernel_size=2, stride=2),  # Output: (128, 16, 16)
 
             nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3, padding=1),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2),  # Output: (256, 4, 4)
 
             nn.Conv2d(in_channels=256, out_channels=512, kernel_size=3, padding=1),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2)  # Output: (512, 2, 2)
+            nn.MaxPool2d(kernel_size=2, stride=2)  # Output: (512, 8, 8)
         )
 
         # Flatten CNN output to feed into LSTM
         self.flatten = nn.Flatten()
 
         # LSTM to handle temporal dependencies
-        self.lstm = nn.LSTM(input_size=512 * 2 * 2, hidden_size=512, num_layers=2, batch_first=True)
+        self.lstm = nn.LSTM(input_size=512 * 8 * 8, hidden_size=1024, num_layers=2, batch_first=True)
 
         # Fully connected layer for classification or output
-        self.fc = nn.Linear(512, num_classes)
+        self.fc = nn.Linear(1024, num_classes)
 
     def forward(self, x):
         batch_size, time_steps, channels, height, width = x.size()
 
         # Initialize hidden state for LSTM
-        h0 = torch.zeros(2, batch_size, 512).to(x.device)  # num_layers=2, hidden_size=512
-        c0 = torch.zeros(2, batch_size, 512).to(x.device)  # num_layers=2, hidden_size=512
+        h0 = torch.zeros(2, batch_size, 1024).to(x.device)  # num_layers=2, hidden_size=1024
+        c0 = torch.zeros(2, batch_size, 1024).to(x.device)  # num_layers=2, hidden_size=1024
 
         # CNN for each time step
         cnn_out = []
