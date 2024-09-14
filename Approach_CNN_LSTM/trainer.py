@@ -12,8 +12,16 @@ def train(model, loader, optimizer, device, schedule_lr, args):
     best_accuracy = 0
     best_accuracy_val = 0
     best_epoch = 0
+    start_epoch = 0
 
-    for epoch in range(args.epochs):
+    if args.model_path:
+        checkpoint = torch.load(args.model_path, weights_only=True)
+        model.load_state_dict(checkpoint['model_state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        start_epoch = checkpoint['epoch']
+        best_accuracy = checkpoint['accuracy']
+
+    for epoch in range(start_epoch, args.epochs):
         losses = {"train": 0, "val": 0, "test": 0}
         accuracies = {"train": 0, "val": 0, "test": 0}
         counts = {"train": 0, "val": 0, "test": 0}
@@ -66,7 +74,14 @@ def train(model, loader, optimizer, device, schedule_lr, args):
             best_accuracy = accuracies["test"] / counts["test"]
             if not os.path.exists('rs'):
                 os.makedirs('rs')
-            torch.save(model, 'rs/%s_best.pth' % args.model_type)
+            torch.save({
+                'model_state_dict': model.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict(),
+                'epoch': epoch,
+                'loss': losses["train"] / counts["train"],
+                'accuracy': accuracies["train"] / counts["train"]
+            }, 'rs/%s_best.pth' % args.model_type)
+            # torch.save(model, 'rs/%s_best.pth' % args.model_type)
             best_epoch = epoch
 
         TrL, TrA, VL, VA, TeL, TeA = losses["train"] / counts["train"], accuracies["train"] / counts["train"], losses[
@@ -89,6 +104,13 @@ def train(model, loader, optimizer, device, schedule_lr, args):
         if epoch % args.saveCheck == 0:
             if not os.path.exists('rs'):
                 os.makedirs('rs')
-            torch.save(model, 'rs/%s_epoch_%d.pth' % (args.model_type, epoch))
+            torch.save({
+                'model_state_dict': model.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict(),
+                'epoch': epoch,
+                'loss': losses["train"] / counts["train"],
+                'accuracy': accuracies["train"] / counts["train"]
+            }, 'rs/%s_epoch_%d.pth' % (args.model_type, epoch))
+            # torch.save(model, 'rs/%s_epoch_%d.pth' % (args.model_type, epoch))
         schedule_lr.step()
         print(schedule_lr.get_last_lr())

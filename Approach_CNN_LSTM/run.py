@@ -30,6 +30,10 @@ parser.add_argument("--lr_step", type=int, default=10, help="Step for learning r
 parser.add_argument("--model_path", type=str, default="", help="Path to save model")
 args = parser.parse_args()
 
+# print parameter in args
+for arg in vars(args):
+    print(f"{arg}: {getattr(args, arg)}")
+
 torch.manual_seed(args.seed)
 random.seed(args.seed)
 torch.backends.cudnn.deterministic = True
