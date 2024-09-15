@@ -61,8 +61,8 @@ if args.model_type == "CNN_LSTM":
 elif args.model_type == "CNN4L_LSTM":
     model = CNN4L_LSTM()
 
-if args.model_path:
-    model = torch.load(args.model_path, weights_only=False)
+# if args.model_path:
+#     model = torch.load(args.model_path, weights_only=False)
 
 model.to(device)
 optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
