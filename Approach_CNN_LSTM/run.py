@@ -1,11 +1,13 @@
 from dataset import EEGDataset128Channel, Splitter, make_split
-from model import CNN_LSTM, CNN4L_LSTM
+from model import *
 
 import torch
 import argparse
 from trainer import train
 import random
 import numpy
+import os
+from time import time, strftime
 
 from torch.utils.data import DataLoader
 from torch.optim.lr_scheduler import StepLR
@@ -28,11 +30,34 @@ parser.add_argument("--saveCheck", type=int, default=10, help="Save check point"
 parser.add_argument("--seed", type=int, default=0, help="Seed for random")
 parser.add_argument("--lr_step", type=int, default=10, help="Step for learning rate scheduler")
 parser.add_argument("--model_path", type=str, default="", help="Path to save model")
+parser.add_argument("--save_dir", type=str, default="history", help="Path to save model")
+parser.add_argument("--optimizer", type=str, default="adam", help="Optimizer")
+parser.add_argument("--num_cnn_layers", type=int, default=3, help="Number of CNN layers")
+parser.add_argument("--num_lstm_layers", type=int, default=2, help="Number of LSTM layers")
+parser.add_argument("--is_resnet", type=bool, default=False, help="Use ResNet")
+parser.add_argument("--is_bidirectional", type=bool, default=False, help="Use Bidirectional LSTM")
+
 args = parser.parse_args()
 
 # print parameter in args
 for arg in vars(args):
     print(f"{arg}: {getattr(args, arg)}")
+
+if not os.path.exists(args.save_dir):
+    os.makedirs(args.save_dir)
+    print(f"Create folder {args.save_dir}")
+
+# get time form hhmmss
+# args.save_dir = f"history/{args.model_type}_{strftime('%H%M%S')}"
+
+args.save_dir = f"history/{args.model_type}_{args.num_cnn_layers}_{args.num_lstm_layers}_{args.is_resnet}_{args.is_bidirectional}_{strftime('%H%M%S')}"
+if not os.path.exists(args.save_dir):
+    os.makedirs(args.save_dir)
+
+# write arguments to file
+with open(os.path.join(args.save_dir, "parameters.txt"), "w") as f:
+    for arg in vars(args):
+        f.write(f"{arg}: {getattr(args, arg)}\n")
 
 torch.manual_seed(args.seed)
 random.seed(args.seed)
@@ -60,12 +85,19 @@ if args.model_type == "CNN_LSTM":
     model = CNN_LSTM()
 elif args.model_type == "CNN4L_LSTM":
     model = CNN4L_LSTM()
+elif args.model_type == "Flex_Model":
+    model = Flex_Model(args.num_cnn_layers, args.num_lstm_layers, args.is_resnet, args.is_bidirectional)
+elif args.model_type == "Flex_Model_noFC":
+    model = Flex_Model_noFC(args.num_cnn_layers, args.num_lstm_layers, args.is_resnet, args.is_bidirectional)
 
 # if args.model_path:
 #     model = torch.load(args.model_path, weights_only=False)
 
 model.to(device)
-optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
+if args.optimizer == "adam":
+    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
+else:
+    optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 
 schedule_lr = StepLR(optimizer, step_size=args.lr_step, gamma=0.1)
 

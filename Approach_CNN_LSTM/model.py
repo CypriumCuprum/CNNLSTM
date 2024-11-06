@@ -2,6 +2,8 @@ import unittest
 
 from torch import nn
 import torch
+import torch.nn.functional as F
+from block import *
 
 
 class TestMethods(unittest.TestCase):
@@ -20,6 +22,52 @@ class TestMethods(unittest.TestCase):
         self.assertIsInstance(model, nn.Module)
         self.assertIsInstance(output, torch.Tensor)
         self.assertEqual(output.shape, (5, 40))
+
+    def test_Flex_Model(self):
+        inp = torch.rand(5, 14, 128, 32, 32)
+        # normal cnn + normal lstm
+        model = Flex_Model()
+        output = model(inp)
+        self.assertIsInstance(model, nn.Module)
+        self.assertIsInstance(output, torch.Tensor)
+        self.assertEqual(output.shape, (5, 40))
+
+        # resnet + bidirectional lstm
+        model1 = Flex_Model(num_cnn=3, num_lstm=2, is_resnet=True, is_bidirectional=True)
+        output1 = model1(inp)
+        self.assertIsInstance(model1, nn.Module)
+        self.assertIsInstance(output1, torch.Tensor)
+        self.assertEqual(output1.shape, (5, 40))
+
+        # resnet + normal lstm
+        model2 = Flex_Model(num_cnn=3, num_lstm=2, is_resnet=True, is_bidirectional=False)
+        output2 = model2(inp)
+        self.assertIsInstance(model2, nn.Module)
+        self.assertIsInstance(output2, torch.Tensor)
+        self.assertEqual(output2.shape, (5, 40))
+
+    def test_Flex_Model_noFC(self):
+        inp = torch.rand(5, 14, 128, 32, 32)
+        # normal cnn + normal lstm
+        model = Flex_Model_noFC()
+        output = model(inp)
+        self.assertIsInstance(model, nn.Module)
+        self.assertIsInstance(output, torch.Tensor)
+        self.assertEqual(output.shape, (5, 40))
+
+        # resnet + bidirectional lstm
+        model1 = Flex_Model_noFC(num_cnn=3, num_lstm=2, is_resnet=True, is_bidirectional=True)
+        output1 = model1(inp)
+        self.assertIsInstance(model1, nn.Module)
+        self.assertIsInstance(output1, torch.Tensor)
+        self.assertEqual(output1.shape, (5, 40))
+
+        # resnet + normal lstm
+        model2 = Flex_Model_noFC(num_cnn=3, num_lstm=2, is_resnet=True, is_bidirectional=False)
+        output2 = model2(inp)
+        self.assertIsInstance(model2, nn.Module)
+        self.assertIsInstance(output2, torch.Tensor)
+        self.assertEqual(output2.shape, (5, 40))
 
 
 class CNNModel128_4L(nn.Module):
@@ -153,6 +201,8 @@ class CNN_LSTM(nn.Module):
         # Pass through fully connected layer
         output = self.fc(final_output)
 
+        output = nn.functional.softmax(output, dim=1)  # Softmax for multiclass classification Mới thêm
+
         return output
 
 
@@ -210,5 +260,117 @@ class CNN4L_LSTM(nn.Module):
 
         # Pass through fully connected layer
         output = self.fc(final_output)
+
+        return output
+
+
+class Flex_Model(nn.Module):
+    def __init__(self, num_cnn=1, num_lstm=3, is_resnet=False, is_bidirectional=False, num_class=40):
+        super(Flex_Model, self).__init__()
+        self.num_cnn = num_cnn
+        self.num_lstm = num_lstm
+        self.is_resnet = is_resnet
+        self.list_in_out = [128, 64, 128, 256, 512, 256]
+        self.cnn = nn.Sequential(
+            *[CNN_Block(32 // (1 << i), 32 // (1 << i), self.list_in_out[i], self.list_in_out[i + 1]) for i in
+              range(num_cnn)]
+        )
+
+        if is_resnet:
+            self.cnn = ResNetLayer(128, 256, n=num_cnn)
+
+        self.flatten = nn.Flatten()
+        self.input_FC = self.list_in_out[num_cnn] * (32 // (1 << num_cnn)) * (32 // (1 << num_cnn))
+        if is_resnet:
+            self.input_FC = 256 * 16 * 16
+        self.fc1_cnn = nn.Linear(self.input_FC, 2048)
+        self.fc2_cnn = nn.Linear(2048, 1024)
+        self.lstm = nn.LSTM(input_size=1024, hidden_size=512, num_layers=num_lstm,
+                            bidirectional=is_bidirectional, batch_first=True)
+
+        self.fc = nn.Linear(512, num_class)
+        if is_bidirectional:
+            self.fc = nn.Linear(1024, num_class)
+
+    def forward(self, x):
+        batch_size, time_steps, channels, height, width = x.size()
+
+        # Initialize hidden state for LSTM
+        h0 = torch.zeros(self.num_lstm * (2 if self.lstm.bidirectional else 1), batch_size, 512).to(x.device)
+        c0 = torch.zeros(self.num_lstm * (2 if self.lstm.bidirectional else 1), batch_size, 512).to(x.device)
+
+        # CNN for each time step
+        cnn_out = []
+        for t in range(time_steps):
+            cnn_feature = self.cnn(x[:, t, :, :, :])
+            cnn_feature = self.flatten(cnn_feature)
+            cnn_feature = self.fc1_cnn(cnn_feature)
+            cnn_feature = self.fc2_cnn(cnn_feature)
+            cnn_out.append(cnn_feature)
+
+        cnn_out = torch.stack(cnn_out, dim=1)
+        # LSTM for temporal sequence
+        lstm_out, _ = self.lstm(cnn_out, (h0, c0))
+
+        # Use the last output of LSTM for final classification
+        final_output = lstm_out[:, -1, :]
+
+        # Pass through fully connected layer
+        output = self.fc(final_output)
+        output = nn.functional.softmax(output, dim=1)  # Softmax for multiclass classification
+
+        return output
+
+
+class Flex_Model_noFC(nn.Module):
+    def __init__(self, num_cnn=1, num_lstm=3, is_resnet=False, is_bidirectional=False, num_class=40):
+        super(Flex_Model_noFC, self).__init__()
+        self.num_cnn = num_cnn
+        self.num_lstm = num_lstm
+        self.is_resnet = is_resnet
+        self.list_in_out = [128, 64, 128, 256, 512, 256]
+        self.cnn = nn.Sequential(
+            *[CNN_Block(32 // (1 << i), 32 // (1 << i), self.list_in_out[i], self.list_in_out[i + 1]) for i in
+              range(num_cnn)]
+        )
+
+        if is_resnet:
+            self.cnn = ResNetLayer(128, 256, n=num_cnn)
+
+        self.flatten = nn.Flatten()
+        self.input_FC = self.list_in_out[num_cnn] * (32 // (1 << num_cnn)) * (32 // (1 << num_cnn))
+        if is_resnet:
+            self.input_FC = 256 * 16 * 16
+        self.lstm = nn.LSTM(input_size=self.input_FC, hidden_size=512, num_layers=num_lstm,
+                            bidirectional=is_bidirectional, batch_first=True)
+
+        self.fc = nn.Linear(512, num_class)
+        if is_bidirectional:
+            self.fc = nn.Linear(1024, num_class)
+
+    def forward(self, x):
+
+        batch_size, time_steps, channels, height, width = x.size()
+        # Initialize hidden state for LSTM
+        h0 = torch.zeros(self.num_lstm * (2 if self.lstm.bidirectional else 1), batch_size, 512).to(x.device)
+        c0 = torch.zeros(self.num_lstm * (2 if self.lstm.bidirectional else 1), batch_size, 512).to(x.device)
+
+        # CNN for each time step
+        cnn_out = []
+        for t in range(time_steps):
+            cnn_feature = self.cnn(x[:, t, :, :, :])
+            cnn_feature = self.flatten(cnn_feature)
+            cnn_out.append(cnn_feature)
+
+        cnn_out = torch.stack(cnn_out, dim=1)
+        # LSTM for temporal sequence
+        lstm_out, _ = self.lstm(cnn_out, (h0, c0))
+
+        # Use the last output of LSTM for final classification
+        final_output = lstm_out[:, -1, :]
+
+        # Pass through fully connected layer
+        output = self.fc(final_output)
+        # output = nn.functional.softmax(output, dim=1)  # Softmax for multiclass classification
 
         return output
